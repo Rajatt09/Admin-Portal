@@ -1,53 +1,46 @@
-// Avinash
-
 import React, { useState } from 'react';
 import { Lock, Mail } from 'lucide-react';
+import opticalogo from '../../assets/jiitosachapter_logo.jpeg.jpg';
+import opticabanner from '../../assets/image.png';
+import { toast } from 'react-hot-toast';
 
 const LoginPage = () => {
-  // State management for form inputs, loading and error states
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  // Handle input changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
-    // Clear error when user starts typing
-    if (error) setError('');
   };
 
-  // Form validation
   const validateForm = () => {
     if (!formData.email || !formData.password) {
-      setError('All fields are required');
       return false;
     }
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setError('Please enter a valid email');
+    
       return false;
     }
     return true;
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form before submission
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error('Please fill in all fields correctly!');
+      return;
+    }
 
     setLoading(true);
-    setError('');
 
     try {
-      // Replace with your API endpoint
-      const response = await fetch('your-api-endpoint/login', {
+      const response = await fetch('http://localhost:3000/auth/v1/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,61 +49,68 @@ const LoginPage = () => {
       });
 
       const data = await response.json();
+      console.log(data);
 
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
 
-      // Handle successful login
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      // Redirect to dashboard
-      window.location.href = '/dashboard';
-
+      toast.success('Login successful!');
+     
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
+      toast.error(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-xl">
-        <div className="flex flex-col items-center space-y-6">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-4xl">
+        <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-12">Admin Portal</h2>
+        <div className="flex flex-col md:flex-row items-center md:items-start justify-between space-y-8 md:space-y-0 md:space-x-8">
           {/* Logo Section */}
-          <div className="w-32 h-32 mb-4">
-            <img 
-              src="/path/to/your/logo.png"  // Replace with your image path
-              alt="Optica Logo"
-              className="w-full h-full object-contain"
-            />
+          <div className="flex flex-col items-center md:w-1/2">
+            <div className="w-20 h-20">
+              <img
+                src={opticalogo}
+                alt="Optica Logo"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="w-full h-full">
+              <img
+                src={opticabanner}
+                alt="Optica Logo"
+                className="w-full h-full object-contain"
+              />
+            </div>
           </div>
 
-          <h2 className="text-2xl font-semibold text-gray-900">Optica Admin Portal</h2>
-
           {/* Login Form */}
-          <div className="bg-blue-50 rounded-xl p-6 w-full max-w-md">
-            <h3 className="text-xl font-semibold mb-6">Log in</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="bg-indigo-50 rounded-xl p-8 w-full md:w-1/2 shadow-md">
+            <h3 className="text-2xl font-bold text-center text-gray-800 mb-6">Log In</h3>
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                    <Mail color="black" className="h-5 w-5 text-indigo-500" />
                   </div>
                   <input
-                    type="email"
+                    type="text"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Email Address"
-                    className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                   />
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                    <Lock color="black" className="h-5 w-5 text-indigo-500" />
                   </div>
                   <input
                     type="password"
@@ -118,40 +118,17 @@ const LoginPage = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="Password"
-                    className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                   />
                 </div>
               </div>
-
-              {error && (
-                <div className="text-red-500 text-sm text-center">
-                  {error}
-                </div>
-              )}
-
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white py-2 rounded-full hover:bg-blue-700 transition-colors duration-200 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition duration-200 disabled:bg-indigo-400 disabled:cursor-not-allowed"
               >
-                {loading ? (
-                  <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Logging in...
-                  </span>
-                ) : (
-                  'Login'
-                )}
+                Login
               </button>
-
-              <div className="text-center">
-                <a href="#" className="text-sm text-gray-600 hover:text-blue-600">
-                  Forgot Password
-                </a>
-              </div>
             </form>
           </div>
         </div>

@@ -6,10 +6,12 @@ import WhatsappMessage from './pages/WhatsappMessage/WhatsappMessage'
 import EmailMessage from './pages/EmailMessage/EmailMessage'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Events from './pages/Events/Events'
+import { Toaster } from 'react-hot-toast';
 
 const App = () => {
   return (
     <>
+      <Toaster />
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<h1>Home</h1>}/>
