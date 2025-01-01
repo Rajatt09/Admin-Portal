@@ -1,472 +1,392 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import Navbar from "../../components/Navbar/Navbar";
 const EmailMessage = () => {
-    const [excelFile, setExcelFile] = useState(null);
-    const [fileData, setFileData] = useState([]);
-    const [mailMessage, setmailMessage] = useState({
-        subject: "",
-        message: "",
-        person1: {
-            name: "",
-            phone: "",
-        },
-        person2: {
-            name: "",
-            phone: "",
-        },
-        fileData: "",
-    });
-    const [showError, setShowError] = useState({
-        message: "",
-        mail: {
-            subject: "",
-            message: "",
-        },
-        uploadfile: "",
-        eventdetail: {
-            eventname: "",
-            eventdate: "",
-        },
-    });
-    const [eventdetail, setEventDetail] = useState({
-        name: "",
-        date: "",
-    });
-    const handleMailFileChange = (e) => {
-        const file = e.target.files[0];
-        setmailMessage({ ...mailMessage, fileData: file });
-    };
+	const [excelFile, setExcelFile] = useState(null);
+	const [fileData, setFileData] = useState([]);
+	const [loading, setLoading] = useState(false);
 
-    const handlePersonChange = (person, field, value) => {
-        setmailMessage({
-            ...mailMessage,
-            [person]: { ...mailMessage[person], [field]: value },
-        });
-    };
-    const sendEmails = async () => {
-        // setLoading(true);
-        setShowError({
-            message: "",
-            mail: {
-                subject: "",
-                message: "",
-            },
-            uploadfile: "",
-            eventdetail: {
-                eventname: "",
-                eventdate: "",
-            },
-        });
+	const [eventDetail, setEventDetail] = useState({
+		name: "",
+		date: "",
+	});
 
-        if (eventdetail.name == "") {
-            setShowError((prevData) => ({
-                ...prevData,
-                eventdetail: {
-                    ...prevData.eventdetail,
-                    eventname: "Please fill the event name.",
-                },
-            }));
+	const [mailMessage, setmailMessage] = useState({
+		subject: "",
+		message: "",
+		person1: {
+			name: "",
+			phone: "",
+		},
+		person2: {
+			name: "",
+			phone: "",
+		},
+		fileData: "",
+	});
+	const [showError, setShowError] = useState({
+		message: "",
+		mail: {
+			subject: "",
+			message: "",
+		},
+		uploadfile: "",
+		eventdetail: {
+			eventname: "",
+			eventdate: "",
+		},
+	});
 
-            return;
-        } else if (eventdetail.date == "") {
-            setShowError((prevData) => ({
-                ...prevData,
-                eventdetail: {
-                    ...prevData.eventdetail,
-                    eventdate: "Please fill the event time.",
-                },
-            }));
-            return;
-        }
+	const handleMailFileChange = (e) => {
+		const file = e.target.files[0];
+		setmailMessage({ ...mailMessage, fileData: file });
+	};
 
-        if (mailMessage.subject == "") {
-            setShowError((prevData) => ({
-                ...prevData,
-                mail: {
-                    ...prevData.mail,
-                    subject: "Please provide subject.",
-                },
-            }));
+	const handlePersonChange = (person, field, value) => {
+		setmailMessage({
+			...mailMessage,
+			[person]: { ...mailMessage[person], [field]: value },
+		});
+	};
+	const sendEmails = async () => {
+		// setLoading(true);
+		setShowError({
+			message: "",
+			mail: {
+				subject: "",
+				message: "",
+			},
+			uploadfile: "",
+			eventdetail: {
+				eventname: "",
+				eventdate: "",
+			},
+		});
 
-            return;
-        } else if (mailMessage.message == "") {
-            setShowError((prevData) => ({
-                ...prevData,
-                mail: {
-                    ...prevData.mail,
-                    message: "Please provide message.",
-                },
-            }));
-            return;
-        }
-    }
-    const handleFileChange = (e) => {
-        console.log("Selected file: ", e.target.files[0]);
-        setExcelFile(e.target.files[0]);
-    };
-    const uploadFile = async () => {
-        console.log("file is: ", excelFile);
-        setShowError({
-            message: "",
-            mail: "",
-            uploadfile: "",
-            eventdetail: {
-                eventname: "",
-                eventdate: "",
-            },
-        });
-        const validExtensions = ["xlsx", "xls", "xlsm", "csv"];
+		if (eventdetail.name == "") {
+			setShowError((prevData) => ({
+				...prevData,
+				eventdetail: {
+					...prevData.eventdetail,
+					eventname: "Please fill the event name.",
+				},
+			}));
 
-        if (!excelFile) {
-            setShowError((prevData) => ({
-                ...prevData,
-                uploadfile: "No file chosen.",
-            }));
+			return;
+		} else if (eventdetail.date == "") {
+			setShowError((prevData) => ({
+				...prevData,
+				eventdetail: {
+					...prevData.eventdetail,
+					eventdate: "Please fill the event time.",
+				},
+			}));
+			return;
+		}
 
-            return;
-        }
+		if (mailMessage.subject == "") {
+			setShowError((prevData) => ({
+				...prevData,
+				mail: {
+					...prevData.mail,
+					subject: "Please provide subject.",
+				},
+			}));
 
-        if (
-            !validExtensions.includes(excelFile.name.split(".").pop().toLowerCase())
-        ) {
-            setShowError((prevData) => ({
-                ...prevData,
-                uploadfile: "Please upload a valid excel file.",
-            }));
+			return;
+		} else if (mailMessage.message == "") {
+			setShowError((prevData) => ({
+				...prevData,
+				mail: {
+					...prevData.mail,
+					message: "Please provide message.",
+				},
+			}));
+			return;
+		}
+	};
+	const handleFileChange = (e) => {
+		const file = e.target.files[0];
+		console.log("Selected file:", file);
+		if (file) {
+			setExcelFile(file);
+		}
+	};
 
-            // setExcelFile(null);
-            return;
-        } const formData = new FormData();
+	const uploadFile = async () => {
+		if (!excelFile) {
+			alert("Please select a file first.");
+			return;
+		}
 
-        formData.append("usersExcelFile", excelFile);
+		const formData = new FormData();
+		formData.append("usersExcelFile", excelFile);
 
-        console.log("formData is: ", formData);
+		try {
+			const response = await axios.post(
+				"http://localhost:3000/api/v1/upload/excelFile",
+				formData,
+				{ headers: { "Content-Type": "multipart/form-data" } }
+			);
+			console.log("Upload response:", response.data);
+			alert("File uploaded successfully.");
+		} catch (error) {
+			console.error(
+				"Failed to upload file:",
+				error.response?.data || error.message
+			);
+			alert("Failed to upload file.");
+		}
+	};
 
-        try {
-            console.log("file is: ", formData);
-            const response = await axios.post(
-                "http://localhost:3000/api/v1/upload/excelFile", // URL
-                formData, // FormData (body)
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data", // Content-Type for file uploads
-                    },
-                } // Config object
-            );
+	return (
+		<>
+			<div className="flex ">
+				{/* Side Navbar */}
+				<Navbar />
+				<div className="flex flex-col gap-6 p-6 w-full ml-[120px]">
+					{/* Event Details Section */}
+                    <h2 className="text-center font-bold text-4xl">Email Messaging</h2>
+					<div className="w-full flex flex-row gap-12 bg-white shadow-md rounded-lg p-6">
+						<div className="w-full bg-white shadow-md rounded-lg p-6">
+							<h3 className="text-lg font-bold text-gray-800 mb-2">
+								Event Details{" "}
+								<span className="text-red-500">*</span>
+							</h3>
+							<p className="text-sm text-gray-600 mb-4">
+								<strong>
+									(Event details required only while sending
+									mail and messages)
+								</strong>
+							</p>
+							<form>
+								<div className="mb-4">
+									<label
+										htmlFor="eventName"
+										className="block px-1 py-2 text-sm font-medium text-gray-700"
+									>
+										Event Name
+									</label>
+									<input
+										id="eventName"
+										type="text"
+										placeholder="Enter event name"
+										value={eventDetail.name}
+										onChange={(e) =>
+											setEventDetail((prev) => ({
+												...prev,
+												name: e.target.value,
+											}))
+										}
+										className="mt-1 py-2 px-3 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm placeholder-gray-400"
+									/>
+									{showError.eventdetail.eventname && (
+										<p className="text-sm text-red-500 mt-1">
+											{showError.eventdetail.eventname}
+										</p>
+									)}
+								</div>
+								<div className="mb-8">
+									<label
+										htmlFor="eventTime"
+										className="block px-1 py-2 text-sm font-medium text-gray-700"
+									>
+										Event Time
+									</label>
+									<input
+										id="eventTime"
+										type="text"
+										placeholder="Enter event time"
+										value={eventDetail.date}
+										onChange={(e) =>
+											setEventDetail((prev) => ({
+												...prev,
+												date: e.target.value,
+											}))
+										}
+										className="mt-1 py-2 px-3 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm placeholder-gray-400"
+									/>
+									{showError.eventdetail.eventdate && (
+										<p className="text-sm text-red-500 mt-1">
+											{showError.eventdetail.eventdate}
+										</p>
+									)}
+								</div>
+							</form>
+						</div>
 
-            if (response.status == 200) {
-                alert("File uploaded successfully.");
-            } else {
-                alert("Failed to upload file.");
-                console.error("Failed to upload file");
-            }
-        } catch (error) {
-            alert("Failed to upload file.");
-            console.error("Failed to upload file", error);
-        }
-    }
-    return (
-        <>
-            {/* <Row className="justify-content-center">
-                <Col md={8}>
-                    <Card className="p-1 mb-4 shadow">
-                        <Card.Body>
-                            <h3>
-                                Event Details <span style={{ color: "red" }}>*</span>
-                            </h3>
-                            <p className="mt-0">
-                                <strong>
-                                    ( Event details required only while sending mail and
-                                    messages )
-                                </strong>
-                            </p>
-                            <br />
-                            <Form>
-                                <Form.Group controlId="eventName">
-                                    <Form.Label>
-                                        <strong>Event Name</strong>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Enter event name"
-                                        value={eventdetail.name}
-                                        onChange={(e) =>
-                                            setEventDetail((prevData) => ({
-                                                ...prevData,
-                                                name: e.target.value,
-                                            }))
-                                        }
-                                    />
-                                </Form.Group>
-                                {showError.eventdetail.eventname != "" && (
-                                    <p className="text-danger mt-2 mb-0">
-                                        {showError.eventdetail.eventname}
-                                    </p>
-                                )}
-                                <Form.Group controlId="eventTime" className="mt-3">
-                                    <Form.Label>
-                                        <strong>Event Time</strong>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Enter event time"
-                                        value={eventdetail.date}
-                                        onChange={(e) =>
-                                            setEventDetail((prevData) => ({
-                                                ...prevData,
-                                                date: e.target.value,
-                                            }))
-                                        }
-                                    />
-                                </Form.Group>
-                                {showError.eventdetail.eventdate != "" && (
-                                    <p className="text-danger mt-2 mb-0">
-                                        {showError.eventdetail.eventdate}
-                                    </p>
-                                )}
-                            </Form>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row> */}
-            {/* <Row className="justify-content-center">
-                <Col md={8}>
-                    <Card className="p-1 mb-4 shadow">
-                        <Card.Body>
-                            <h3>
-                                Write Email Message{" "}
-                                <span style={{ color: "red" }}>*</span>
-                            </h3>
-                            <p className="mt-0">
-                                <strong>( Required only while sending mails )</strong>
-                            </p>
-                            <Form>
-                                <Form.Group controlId="emailSubject">
-                                    <Form.Label>
-                                        <strong>Subject</strong> {""}
-                                        <span style={{ color: "red" }}>*</span>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Write email subject"
-                                        value={mailMessage.subject}
-                                        onChange={(e) =>
-                                            setmailMessage({
-                                                ...mailMessage,
-                                                subject: e.target.value,
-                                            })
-                                        }
-                                    />
-                                </Form.Group>
-                                {showError.mail.subject != "" && (
-                                    <p className="text-danger mt-2 mb-0">
-                                        {showError.mail.subject}
-                                    </p>
-                                )}
-                                <br />
-                                <Form.Group controlId="emailMessage">
-                                    <Form.Label>
-                                        <strong>Email Message</strong> {""}
-                                        <span style={{ color: "red" }}>*</span>
-                                    </Form.Label>
-                                    <Form.Control
-                                        as="textarea"
-                                        rows={10}
-                                        placeholder="Write your email message"
-                                        style={{ resize: "none" }}
-                                        value={mailMessage.message}
-                                        onChange={(e) =>
-                                            setmailMessage({
-                                                ...mailMessage,
-                                                message: e.target.value,
-                                            })
-                                        }
-                                    />
-                                </Form.Group>
-                                {showError.mail.message != "" && (
-                                    <p className="text-danger mt-2 mb-0">
-                                        {showError.mail.message}
-                                    </p>
-                                )}
-                                <br />
-                                <Form.Group controlId="contact1">
-                                    <Form.Label>
-                                        <strong>Contact Person 1 (Optional)</strong>
-                                    </Form.Label>
-                                    <Row>
-                                        <Col md={6} className="mb-2 mb-md-0">
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Name"
-                                                value={mailMessage.person1.name}
-                                                onChange={(e) =>
-                                                    handlePersonChange(
-                                                        "person1",
-                                                        "name",
-                                                        e.target.value
-                                                    )
-                                                }
-                                            />
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Phone Number"
-                                                value={mailMessage.person1.phone}
-                                                onChange={(e) =>
-                                                    handlePersonChange(
-                                                        "person1",
-                                                        "phone",
-                                                        e.target.value
-                                                    )
-                                                }
-                                            />
-                                        </Col>
-                                    </Row>
-                                </Form.Group>
+						{/* Upload Excel Section */}
+						<div className="w-full bg-white shadow-md rounded-lg p-6">
+							<h3 className="text-xl font-semibold mb-4">
+								Upload Excel File{" "}
+								<span className="text-red-500">*</span>
+							</h3>
+							<div className="border-dashed border-2 border-blue-400 p-6 text-center rounded-lg bg-blue-50">
+								<label
+									htmlFor="file-upload"
+									className="cursor-pointer text-blue-600 font-medium hover:underline"
+								>
+									<button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+										Browse files
+									</button>
+								</label>
+								<input
+									type="file"
+									id="file-upload"
+									className="hidden"
+									onChange={handleFileChange}
+									accept=".xlsx, .xls, .csv"
+								/>
+							</div>
 
-                                <br />
-                                <Form.Group controlId="contact2">
-                                    <Form.Label>
-                                        <strong>Contact Person 2 (Optional)</strong>
-                                    </Form.Label>
-                                    <Row>
-                                        <Col md={6} className="mb-2 mb-md-0">
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Name"
-                                                value={mailMessage.person2.name}
-                                                onChange={(e) =>
-                                                    handlePersonChange(
-                                                        "person2",
-                                                        "name",
-                                                        e.target.value
-                                                    )
-                                                }
-                                            />
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Phone Number"
-                                                value={mailMessage.person2.phone}
-                                                onChange={(e) =>
-                                                    handlePersonChange(
-                                                        "person2",
-                                                        "phone",
-                                                        e.target.value
-                                                    )
-                                                }
-                                            />
-                                        </Col>
-                                    </Row>
-                                </Form.Group>
+							<div className="flex items-center justify-center mt-6">
+								<button
+									onClick={uploadFile}
+									className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-md"
+								>
+									Upload File
+								</button>
+							</div>
 
-                                <br />
-                                <Form.Group controlId="fileUpload">
-                                    <Form.Label>
-                                        <strong>Upload File (Optional)</strong>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="file"
-                                        onChange={handleMailFileChange}
-                                    />
-                                </Form.Group>
-                            </Form>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row> */}
-            {/* <Row className="justify-content-center">
-                <Col md={8}>
-                    <Card className="p-1 mb-4 shadow">
-                        <Card.Body>
-                            <h3>
-                                Upload Excel File <span style={{ color: "red" }}>*</span>
-                            </h3>
-                            <br />
-                            <input
-                                type="file"
-                                className="form-control"
-                                onChange={handleFileChange}
-                                accept=".xlsx, .xls, .csv"
-                            />
-                            {showError.uploadfile != "" && (
-                                <p className="text-danger mt-2 mb-0">
-                                    {showError.uploadfile}
-                                </p>
-                                // add button for uploading file
-                            )}
+							<p className="mt-4 text-gray-600 text-sm">
+								<strong>Note:</strong> Upload file only in Excel
+								or CSV format.
+							</p>
+						</div>
+					</div>
 
-                            {
-                                // button for uploading file
-                                <Button
-                                    variant="primary"
-                                    className="mt-3"
-                                    onClick={uploadFile}
-                                >
-                                    Upload File
-                                </Button>
-                            }
+					{/* Email Section */}
+					<div className="w-full bg-white shadow-lg rounded-lg p-8 border border-gray-200">
+						<h3 className="text-lg font-bold text-gray-800 mb-4">
+							Write Email Message{" "}
+							<span className="text-red-500">*</span>
+						</h3>
+						<p className="text-sm text-gray-600 mb-6">
+							<strong>(Required only while sending mails)</strong>
+						</p>
+						<form>
+							<div className="mb-6">
+								<label
+									htmlFor="emailSubject"
+									className="block px-1 py-2 text-sm font-medium text-gray-700"
+								>
+									Subject{" "}
+									<span className="text-red-500">*</span>
+								</label>
+								<input
+									id="emailSubject"
+									type="text"
+									placeholder="Write email subject"
+									value={mailMessage.subject}
+									onChange={(e) =>
+										setMailMessage((prev) => ({
+											...prev,
+											subject: e.target.value,
+										}))
+									}
+									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+								/>
+								{showError.mail.subject && (
+									<p className="text-sm text-red-500 mt-2">
+										{showError.mail.subject}
+									</p>
+								)}
+							</div>
 
-                            <p className="mt-3">
-                                <strong>Note: Upload File only in excel format.</strong>
-                            </p>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row> */}
-            <div className="flex justify-center items-center h-screen bg-gray-100">
-                <div className="w-3/4 md:w-2/4 bg-white shadow-md rounded-lg p-6">
-                    <h3 className="text-xl font-semibold mb-4">
-                        Upload Excel File <span className="text-red-500">*</span>
-                    </h3>
-                    <div className="border-dashed border-2 border-blue-400 p-6 text-center rounded-lg bg-blue-50 relative">
-                        <label
-                            htmlFor="file-upload"
-                            className="cursor-pointer text-blue-600 font-medium hover:underline"
-                        >
-                            <div className="flex flex-col items-center">
-                                <img
-                                    src="/upload-icon.svg" // Replace this with the actual SVG or icon file
-                                    alt="Upload"
-                                    className="h-16 mb-2"
-                                />
-                                <p>Drag your file(s) to start uploading</p>
-                                <p className="text-sm text-gray-500 my-2">OR</p>
-                                <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-                                    size="small">
-                                        Browse files
-                                </button>
-                                    
-                            </div>
-                        </label>
-                        <input
-                            type="file"
-                            id="file-upload"
-                            className="hidden"
-                            onChange={handleFileChange}
-                            accept=".xlsx, .xls, .csv"
-                        />
-                    </div>
+							<div className="mb-6">
+								<label
+									htmlFor="emailMessage"
+									className="block px-1 py-2 text-sm font-medium text-gray-700"
+								>
+									Email Message{" "}
+									<span className="text-red-500">*</span>
+								</label>
+								<textarea
+									id="emailMessage"
+									rows="6"
+									placeholder="Write your email message"
+									value={mailMessage.message}
+									onChange={(e) =>
+										setMailMessage((prev) => ({
+											...prev,
+											message: e.target.value,
+										}))
+									}
+									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm resize-none px-4 py-2"
+								/>
+								{showError.mail.message && (
+									<p className="text-sm text-red-500 mt-2">
+										{showError.mail.message}
+									</p>
+								)}
+							</div>
 
-                    {/* {error && <p className="text-red-500 mt-3">{error}</p>} */}
+							{["person1", "person2"].map((personKey, index) => (
+								<div className="mb-6" key={index}>
+									<label className="block px-1 py-2 text-sm font-medium text-gray-700">
+										Contact Person {index + 1} (Optional)
+									</label>
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<input
+											type="text"
+											placeholder="Name"
+											value={mailMessage[personKey].name}
+											onChange={(e) =>
+												handlePersonChange(
+													personKey,
+													"name",
+													e.target.value
+												)
+											}
+											className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+										/>
+										<input
+											type="text"
+											placeholder="Phone Number"
+											value={mailMessage[personKey].phone}
+											onChange={(e) =>
+												handlePersonChange(
+													personKey,
+													"phone",
+													e.target.value
+												)
+											}
+											className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+										/>
+									</div>
+								</div>
+							))}
 
-                    <button variant="primary"
-                        className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white"
-                        onClick={uploadFile}>
+							<div className="mb-6">
+								<label
+									htmlFor="fileUpload"
+									className="block px-1 py-2 text-sm font-medium text-gray-700"
+								>
+									Upload File (Optional)
+								</label>
+								<div className="border-dashed border-2 border-blue-400 p-8 text-center rounded-lg bg-blue-50">
+									<label
+										htmlFor="file-upload-mail"
+										className="cursor-pointer text-blue-600 font-medium hover:underline"
+									>
+										<button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md">
+											Browse files
+										</button>
+									</label>
+									<input
+										id="file-upload-mail"
+										type="file"
+										onChange={handleMailFileChange}
+										className="hidden"
+									/>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</>
+	);
+};
 
-                        Upload File
-                    </button>
-
-
-                    <p className="mt-4 text-gray-600 text-sm">
-                        <strong>Note:</strong> Upload file only in Excel or CSV format.
-                    </p>
-                </div>
-            </div>
-        </>
-    )
-}
-
-export default EmailMessage
+export default EmailMessage;
