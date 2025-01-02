@@ -7,12 +7,14 @@ import EmailMessage from './pages/EmailMessage/EmailMessage'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Events from './pages/Events/Events'
 import { Toaster } from 'react-hot-toast';
+import Navbar from './components/Navbar/Navbar'
 
 const App = () => {
   return (
     <>
       <Toaster />
       <BrowserRouter>
+      <Navbar />
         <Routes>
           <Route path='/' element={<h1>Home</h1>}/>
           <Route path='/login' element={<Login />}/>
