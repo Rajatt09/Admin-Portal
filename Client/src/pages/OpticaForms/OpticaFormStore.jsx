@@ -7,7 +7,7 @@ const defaultFormConfig = {
     instructions: [],
   },
   headerInfo: {
-    heading: "New Form",
+    heading: "",
   },
   footerInfo: {
     contactus: {

@@ -11,14 +11,26 @@ function OpticaFormsDashboard() {
       <Navbar />
 
       {/* Main Content */}
-      <div className="flex- ml-[100px] w-full">
+      <div className="flex- ml-16 w-full">
         {/* Header */}
-        <header className="mt-5 flex items-center gap-12 mr-6 ml-6">
-          <h1 className="text-2xl font-sans font-bold">Optica Forms</h1>
+        <header className="mt-5 flex flex-col sm:flex-row items-center sm:justify-between sm:mr-6 sm:ml-6">
+          {/* Title Section */}
+          <div className="flex flex-row items-center w-full w-auto gap-4 gap-6">
+            <h1 className="text-2xl font-sans font-bold">Optica Forms</h1>
+            {/* New Form Button on Desktop */}
+            <div className="sm:ml-auto sm:flex sm:items-center">
+              <Link to="/createopticaform">
+                <button className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                  <Plus size={20} />
+                  <span>New Form</span>
+                </button>
+              </Link>
+            </div>
+          </div>
 
           {/* Search Bar */}
-          <div className="relative">
-            <div className="relative h-10 w-80 border rounded-full px-4 py-2 text-sm focus:outline-2 focus:ring-2 focus:ring-blue-500">
+          <div className="relative sm:w-80 mt-4 sm:mt-0 w-full sm:px-0 px-4">
+            <div className="relative h-10 border rounded-full px-4 py-2 text-sm focus:outline-2 focus:ring-2 focus:ring-blue-500">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
@@ -28,16 +40,6 @@ function OpticaFormsDashboard() {
             </div>
           </div>
         </header>
-
-        {/* New Form Button */}
-        <div className="flex justify-end mt-7 mr-6">
-          <Link to="/createopticaform">
-            <button className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-              <Plus size={20} />
-              <span>Create New Form</span>
-            </button>
-          </Link>
-        </div>
 
         {/* Forms Content */}
         <main className="py-4 mx-6 mt-4">

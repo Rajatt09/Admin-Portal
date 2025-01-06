@@ -23,7 +23,7 @@ const ResponsesView = () => {
   return (
     <div className="p-6">
       <Navbar />
-      <div className="ml-[100px] flex flex-col">
+      <div className="ml-16 flex flex-col">
         {" "}
         {/* Added margin-left to account for the sidebar */}
         <div className="flex justify-between items-center mb-6">

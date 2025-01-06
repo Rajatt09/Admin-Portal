@@ -10,6 +10,7 @@ import { Toaster } from "react-hot-toast";
 import FormBuilder from "./pages/OpticaForms/CreateOpticaForm";
 import OpticaFormsDashboard from "./pages/OpticaForms/OpticFormsDashboard";
 import ResponsesView from "./pages/OpticaForms/OpticaFormResponses";
+import Navbar from "./components/Navbar/Navbar";
 
 const App = () => {
   return (
