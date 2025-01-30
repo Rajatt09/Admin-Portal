@@ -7,20 +7,28 @@ import apiRoutes from "./routes/api_routes.js";
 import emailmessageRoutes from "./routes/emailmessage_routes.js";
 import mongoconnect from "./utils/dbConnection.js";
 
-mongoconnect();
+mongoconnect();import eventRoutes from './routes/event_routes.js'
+import connectDB from './utils/events.js'
+
+connectDB();
+
 
 dotenv.config();
 
 const app = express();
-app.use(
-	cors({
-		origin: "*",
-	})
-);
-app.use(express.json());
+app.use(cors(
+    {
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true
+    }
+));
+app.use(express.json());    
 
 app.use("/auth/v1", authRoutes);
 app.use("/api/v1", apiRoutes);
+app.use('/events/v1', eventRoutes);
 app.use("/api/v1/emailMessage", emailmessageRoutes);
 
 const PORT = process.env.PORT || 5000;
