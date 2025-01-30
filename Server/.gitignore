@@ -3,3 +3,6 @@ public
 .env
 Server\src\.env
 src/src/utils
+src/middleware/apikeys.json
+Server\src\middleware\apikeys.json
+Server\src\middleware\TestFile.txt
