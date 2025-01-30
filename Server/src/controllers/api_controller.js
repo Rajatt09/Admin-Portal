@@ -6,36 +6,23 @@ const uploadExcel = async (req, res) => {
 	try {
 		const file = req.file;
 
-		console.log("file is: ", file);
-
 		if (!file) {
-			return res.status(400).send("No file uploaded.");
+			return res.status(400).json({ error: "No file uploaded." });
 		}
 
-		// Use process.cwd() to get the current working directory
-		const filePath = path.join(
-			process.cwd(),
-			"public",
-			"files",
-			file.originalname
-		);
+		const filePath = file.path;
+		console.log("Uploaded file path:", filePath);
+		// Use multer's saved path
 
-		// Check if the file exists at the specified path
-		if (!fs.existsSync(path.join(process.cwd(), "public", "files"))) {
-			console.log("File does not exist, creating directory...");
-			fs.mkdirSync(path.join(process.cwd(), "public", "files"), {
-				recursive: true,
-			});
-		}
-
-		let workbook; // Declare workbook here for broader scope
 		// Read the Excel file from disk
+		let workbook;
 		try {
 			workbook = XLSX.readFile(filePath);
-			console.log("Workbook loaded:", workbook);
 		} catch (err) {
 			console.error("Error reading Excel file:", err);
-			return res.status(400).send("Invalid Excel file.");
+			return res
+				.status(400)
+				.json({ error: "Invalid Excel file format." });
 		}
 
 		const sheetName = workbook.SheetNames[0]; // Get the first sheet
@@ -47,7 +34,9 @@ const uploadExcel = async (req, res) => {
 		// Extract headers from the first row
 		const headers = excelData[0];
 		if (!headers || headers.length === 0) {
-			return res.status(400).send("No headers found in the Excel file.");
+			return res
+				.status(400)
+				.json({ error: "No headers found in the Excel file." });
 		}
 
 		// Map the data to the desired JSON format using headers as keys
@@ -73,17 +62,25 @@ const uploadExcel = async (req, res) => {
 			"utils",
 			"users.js"
 		);
-		if (!fs.existsSync(path.dirname(usersJSPath))) {
+		try {
 			fs.mkdirSync(path.dirname(usersJSPath), { recursive: true });
+			fs.writeFileSync(usersJSPath, usersJSContent, "utf8");
+		} catch (err) {
+			console.error("Error writing users.js file:", err);
+			return res
+				.status(500)
+				.json({ error: "Failed to write users.js file." });
 		}
-		fs.writeFileSync(usersJSPath, usersJSContent, "utf8");
-		fs.unlinkSync(filePath);
-		res.status(200).send("File processed and written to users.js");
-	} catch (error) {
-		console.error("Error while processing the Excel file: ", error);
 
-		// Return a proper response on error
-		res.status(500).send("Error processing file.");
+		// Clean up uploaded file
+
+		res.status(200).json({
+			message: "File processed successfully.",
+			users,
+		});
+	} catch (error) {
+		console.error("Error while processing the Excel file:", error);
+		res.status(500).json({ error: "Error processing file." });
 	}
 };
 

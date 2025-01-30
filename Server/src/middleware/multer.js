@@ -3,7 +3,7 @@ import multer from "multer";
 
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
-		const uploadPath = "./public/files";
+		const uploadPath = "./public/uploads";
 		if (!fs.existsSync(uploadPath)) {
 			fs.mkdirSync(uploadPath, { recursive: true });
 		}
@@ -14,4 +14,6 @@ const storage = multer.diskStorage({
 	},
 });
 
-export const upload = multer({ storage });
+const upload = multer({ storage: storage });
+
+export default upload;

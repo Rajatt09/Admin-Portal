@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Navbar from "../../components/Navbar/Navbar";
 import { toast } from "react-hot-toast";
+import EmailProgressTracker from "./EmailProgessTracker";
 const EmailMessage = () => {
 	const [excelFile, setExcelFile] = useState(null);
+	const [showModal, setShowModal] = useState(false);
 	const [eventDetail, setEventDetail] = useState({
 		name: "",
 		date: "",
@@ -11,14 +13,8 @@ const EmailMessage = () => {
 	const [mailMessage, setmailMessage] = useState({
 		subject: "",
 		message: "",
-		person1: {
-			name: "",
-			phone: "",
-		},
-		person2: {
-			name: "",
-			phone: "",
-		},
+		person1: { name: "", phone: "" },
+		person2: { name: "", phone: "" },
 		fileData: "",
 	});
 	const [showError, setShowError] = useState({
@@ -33,8 +29,23 @@ const EmailMessage = () => {
 			eventdate: "",
 		},
 	});
+	const [showProgress, setShowProgress] = useState(false);
 	const handleMailFileChange = (e) => {
 		const file = e.target.files[0];
+		// accept DOCX ,  pdf type and photo
+		if (
+			![
+				"application/pdf",
+				"application/msword",
+				"image/jpeg",
+				"image/png",
+				"image/jpg",
+				"image/svg",
+			].includes(file.type)
+		) {
+			toast.error("Please select only pdf, docx or image files");
+			return;
+		}
 		setmailMessage({ ...mailMessage, fileData: file });
 		toast.success("File selected successfully");
 	};
@@ -46,6 +57,8 @@ const EmailMessage = () => {
 	};
 	const sendingData = async () => {
 		// setLoading(true);
+		setShowModal(true);
+		setShowProgress(true);
 		setShowError({
 			message: "",
 			mail: {
@@ -104,39 +117,67 @@ const EmailMessage = () => {
 			}));
 			return;
 		}
+		//
 		// after clicking on send data button
 
 		console.log("Data to be sent:", {
 			eventDetail,
 			mailMessage,
-			excelFile,
 		});
 
-		toast.success("Email sent successfully");
-			// if there is no error and data send sucessfully then empty the fields
-			setEventDetail({
+		console.log("Data to be sent:", {
+			eventDetail,
+			mailMessage,
+		});
+		const formData = new FormData();
+		formData.append("eventDetail", JSON.stringify(eventDetail));
+		formData.append(
+			"mailMessage",
+			JSON.stringify({
+				...mailMessage,
+			})
+		);
+
+		if (mailMessage.fileData) {
+			formData.append("file", mailMessage.fileData); // Attach file
+		}
+
+		const response = await axios.post(
+			"http://localhost:3000/api/v1/emailmessage",
+			formData,
+			{
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			}
+		);
+
+		console.log("Response:", response.data);
+		toast.success(response.data.message);
+
+		setEventDetail({
+			name: "",
+			date: "",
+		});
+		setmailMessage({
+			subject: "",
+			message: "",
+			person1: {
 				name: "",
-				date: "",
-			});
-			setmailMessage({
-				subject: "",
-				message: "",
-				person1: {
-					name: "",
-					phone: "",
-				},
-				person2: {
-					name: "",
-					phone: "",
-				},
-	
-				fileData: "",
-			});
+				phone: "",
+			},
+			person2: {
+				name: "",
+				phone: "",
+			},
+
+			fileData: "",
+		});
 	};
 	const handleFileChange = (e) => {
 		const file = e.target.files[0];
-		console.log("Selected file:", file);
 		if (file) {
+			const fileType = file.name.split(".").pop().toLowerCase();
 			if (["xlsx", "xls", "csv"].includes(fileType)) {
 				setExcelFile(file);
 				toast.success("Excel file selected successfully");
@@ -145,6 +186,7 @@ const EmailMessage = () => {
 			}
 		}
 	};
+
 	const uploadFile = async () => {
 		if (!excelFile) {
 			toast.error("Please select a file to upload");
@@ -161,13 +203,13 @@ const EmailMessage = () => {
 				{ headers: { "Content-Type": "multipart/form-data" } }
 			);
 			console.log("Upload response:", response.data);
-			alert("File uploaded successfully.");
+			toast.success("File uploaded successfully.");
 		} catch (error) {
 			console.error(
 				"Failed to upload file:",
 				error.response?.data || error.message
 			);
-			alert("Failed to upload file.");
+			toast.error("Failed to upload file.");
 		}
 	};
 
@@ -250,19 +292,24 @@ const EmailMessage = () => {
 						</div>
 
 						{/* Upload Excel Section */}
+
 						<div className="w-full bg-white shadow-md rounded-lg p-6">
 							<h3 className="text-xl font-semibold mb-4">
-								Upload Excel File{" "}
+								Upload Excel File
 							</h3>
 							<div className="border-dashed border-2 border-blue-400 p-6 text-center rounded-lg bg-blue-50">
-								<label
-									htmlFor="file-upload"
-									className="cursor-pointer text-blue-600 font-medium hover:underline"
+								{/* Trigger the file input via button */}
+								<button
+									type="button"
+									onClick={() =>
+										document
+											.getElementById("file-upload")
+											.click()
+									}
+									className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
 								>
-									<button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
-										Browse files
-									</button>
-								</label>
+									Browse files
+								</button>
 								<input
 									type="file"
 									id="file-upload"
@@ -273,6 +320,7 @@ const EmailMessage = () => {
 							</div>
 
 							<div className="flex items-center justify-center mt-6">
+								{/* Upload button */}
 								<button
 									onClick={uploadFile}
 									className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-md"
@@ -382,33 +430,44 @@ const EmailMessage = () => {
 
 							<div className="mb-6">
 								<label
-									htmlFor="fileUpload"
+									htmlFor="file-upload-mail"
 									className="block px-1 py-2 text-sm font-medium text-gray-700"
 								>
 									Upload File (Optional)
 								</label>
 								<div className="border-dashed border-2 border-blue-400 p-8 text-center rounded-lg bg-blue-50">
-									<label
-										htmlFor="file-upload-mail"
-										className="cursor-pointer text-blue-600 font-medium hover:underline"
-									>
-										<button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md">
-											Browse files
-										</button>
-									</label>
 									<input
 										id="file-upload-mail"
 										type="file"
 										onChange={handleMailFileChange}
 										className="hidden"
+										accept=".pdf, .doc, .docx, .jpeg, .png, .jpg, .svg"
 									/>
+									<label
+										htmlFor="file-upload-mail"
+										className="cursor-pointer text-blue-600 font-medium hover:underline"
+									>
+										<button
+											onClick={() => {
+												document
+													.getElementById(
+														"file-upload-mail"
+													)
+													.click();
+											}}
+											type="button"
+											className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md"
+										>
+											Browse files
+										</button>
+									</label>
 								</div>
 							</div>
 						</form>
 					</div>
 				</div>
 			</div>
-			
+
 			{/* Send Data Button */}
 			<div className="flex justify-end mx-10 my-8">
 				<button
@@ -418,6 +477,10 @@ const EmailMessage = () => {
 					Send Data
 				</button>
 			</div>
+			<EmailProgressTracker
+				isVisible={showModal}
+				onClose={() => setShowModal(false)}
+			/>
 		</>
 	);
 };

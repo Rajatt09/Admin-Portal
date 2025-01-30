@@ -1,0 +1,102 @@
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<style>
+			body, html { margin: 0; padding: 0; font-family: 'Arial',
+			sans-serif; background: #000; color: #fff; } .container { width:
+			100%; max-width: 600px; margin: 20px auto; backdrop-filter:
+			blur(8px) brightness(1.1); background: rgba(255, 255, 255, 0.15);
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 1px solid
+			rgba(255, 255, 255, 0.2); overflow: hidden; } .header-image { width:
+			100%; height: 200px; background:
+			url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTekFuJlFxrCOPKIKRxfdBufnp7mBixPnSrcg&s')
+			no-repeat center center/cover; } .header { text-align: center;
+			padding: 20px; background-color: rgba(0, 0, 0, 0.7); } .header h1 {
+			margin: 0; font-size: 24px; } .content { padding: 20px; line-height:
+			1.6; } .content h2 { color: #00bcd4; font-size: 20px; margin-bottom:
+			20px; } .ul-info { list-style-type: none; padding: 0; margin: 0; }
+			.ul-info li { padding: 10px; margin-bottom: 10px; background:
+			rgba(0, 0, 0, 0.4); border-radius: 5px; text-align: left; } .content
+			a { color: #00bcd4; text-decoration: none; font-weight: bold; }
+			.content a:hover { text-decoration: underline; } .inquiry { padding:
+			20px; text-align: center; } .inquiry h3 { font-size: 18px; color:
+			#00bcd4; margin-bottom: 10px; } .contact-info p { margin: 5px 0;
+			font-size: 14px; } .footer { text-align: center; padding: 10px;
+			background-color: rgba(0, 0, 0, 0.7); } .social-icons a { margin: 0
+			10px; color: #fff; font-size: 16px; } .social-icons a:hover { color:
+			#00bcd4; } .social-img { width: 20px; height: 20px; } @media only
+			screen and (max-width: 600px) { .header h1 { font-size: 20px; }
+			.content h2 { font-size: 18px; } .ul-info li { font-size: 14px; }
+			.inquiry h3 { font-size: 16px; } .contact-info p { font-size: 12px;
+			} .social-icons a { font-size: 14px; } }
+		</style>
+	</head>
+
+	<body>
+		<div class="container">
+			<!-- Header Image -->
+			<div class="header">
+				<div class="header-image"></div>
+				<h1>{{title}}</h1>
+			</div>
+
+			<!-- Content Section -->
+			<div class="content">
+				{{!-- <p>Hey <strong>{{name}}</strong>,</p>
+        <p>Your interview for the Optica JIIT Student Chapter is scheduled on
+          <strong>August 28th from 5 PM to 7 PM in G3 and G4</strong>
+          for both of your preferences. Your preferences are as follows:</p>
+        <ul class="ul-info">
+          <li><strong>Preference 1:</strong> {{pref1}}</li>
+          <li><strong>Preference 2:</strong> {{pref2}}</li>
+        </ul>
+        <p><strong>Please be present at the venue 15 minutes before the
+            scheduled time.</strong></p>
+        <p><strong>Please bring your laptops or any relevant materials that
+            showcase your work in the domain you're interested in.</strong></p>
+
+        <p>Looking forward to seeing you there!</p>
+        <p>Join our WhatsApp group for updates:
+          <a
+            href="https://chat.whatsapp.com/JlpgCzdvYWr5DnYb8nL7M2"
+            style="color: #00bcd4; text-decoration: none; font-weight: bold;"
+          >Click Here</a>
+        </p>
+        <p>Regards,<br />
+          <strong>Optica JIIT Student Chapter</strong>
+        </p> --}}
+				{{message}}
+			</div>
+
+			<!-- Inquiry Section -->
+			<div class="inquiry">
+				<h3>For Any Inquiries</h3>
+				<div class="contact-info">
+					<p><strong>Contact Person 1:</strong>
+						{{person1.name}}
+						|
+						{{person1.phone}}</p>
+					<p><strong>Contact Person 2:</strong>
+						{{person2.name}}
+						|
+						{{person2.phone}}</p>
+					{{#if fileData}}
+						<p>Additional File Data: {{fileData}}</p>
+					{{/if}}
+				</div>
+			</div>
+
+			<!-- Footer Section -->
+			<!-- <div class="footer">
+            <p>Connect with us:</p>
+            <div class="social-icons">
+                <a href="https://www.instagram.com/jiitopticachapter"><img class="social-img" src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram Icon"></a>
+                <a href="https://www.linkedin.com/company/jiitoptica"><img class="social-img" src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn Icon"></a>
+            </div>
+        </div> -->
+		</div>
+	</body>
+
+</html>
