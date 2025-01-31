@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from 'react-hot-toast';
 
 function ShowModal({ closeModal, onSubmit }) {
+  const navigate = useNavigate();
+
   useEffect(() => {
     document.body.style.overflowY = "hidden";
     return () => {
@@ -36,41 +40,49 @@ function ShowModal({ closeModal, onSubmit }) {
   };
 
   const handleSubmit = async (e) => {
-	e.preventDefault();
-  
-	// Create FormData object
-	const formDataToSend = new FormData();
-	formDataToSend.append("eventName", formData.eventName);
-	formDataToSend.append("venue", formData.venue);
-	formDataToSend.append("description", formData.description);
-	formDataToSend.append("date", formData.date);
-	formDataToSend.append("timeFrom", formData.timeFrom);
-	formDataToSend.append("timeTo", formData.timeTo);
-  
-	// Append files to the FormData
-	formData.files.forEach((file) => {
-	  formDataToSend.append("files", file); // "files" is the key for the file array
-	});
-  
-	try {
-	  // Use fetch or axios to send data
-  const response = await axios.post(
-    "http://localhost:3000/events/v1/eventPost",
-    formDataToSend,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  )
+    e.preventDefault();
+    toast.loading('Uploading files...');
+    // Create FormData object
+    const formDataToSend = new FormData();
+    formDataToSend.append("eventName", formData.eventName);
+    formDataToSend.append("venue", formData.venue);
+    formDataToSend.append("description", formData.description);
+    formDataToSend.append("date", formData.date);
+    formDataToSend.append("timeFrom", formData.timeFrom);
+    formDataToSend.append("timeTo", formData.timeTo);
 
-		console.log("Files uploaded successfully");
-		closeModal();
-	} catch (error) {
-	  console.error("Error uploading files:", error);
-	}
+    // Append files to the FormData
+    formData.files.forEach((file) => {
+      formDataToSend.append("files", file); // "files" is the key for the file array
+    });
+
+    try {
+      // Use fetch or axios to send data
+      const response = await axios.post(
+        "http://localhost:3000/events/v1/eventPost",
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+
+      toast.dismiss();
+      console.log("Files uploaded successfully");
+      toast.success('Files uploaded successfully');
+      closeModal();
+      setTimeout(() => {
+        navigate(0);
+      }, 2500)
+
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Error uploading files');
+      console.error("Error uploading files:", error);
+    }
   };
-  
+
 
   const removeFile = (index) => {
     setFormData((prev) => ({
