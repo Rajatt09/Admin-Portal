@@ -13,11 +13,25 @@ const FormBuilder = () => {
   const [footerInfo, setFooterInfo] = useState(formConfig.footerInfo);
   const [newInstruction, setNewInstruction] = useState("");
 
+  const validatePhoneNumber = (phoneNumber) => {
+    return /^[0-9]{10}$/.test(phoneNumber); 
+  };
+  
+  const handlePhoneNumberChange = (person, value) => {
+    if (/^\d{0,10}$/.test(value)) { // Allow only numbers up to 10 digits
+      updateFooterInfo(person, "Phno", value);
+    }
+  
+    if (value.length === 10 && !validatePhoneNumber(value)) {
+      console.error("Invalid phone number");
+    }
+  };
+  
+
   const submitForm = () => {
     console.log("form data is: ", formConfig);
   };
 
-  // Keeping all your existing functions unchanged
   const updateHeaderInfo = (key, value) => {
     const updatedHeader = { ...headerInfo, [key]: value };
     setHeaderInfo(updatedHeader);
@@ -105,7 +119,6 @@ const FormBuilder = () => {
             onClick={submitForm}
             className="flex items-center space-x-2 bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md z-10"
           >
-            {/* <Plus size={20} /> */}
             <span>Create form</span>
           </button>
         </div>
@@ -203,14 +216,12 @@ const FormBuilder = () => {
                           className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                           placeholder="Name"
                         />
-                        <input
-                          type="text"
-                          value={footerInfo.contactus[person].Phno}
-                          onChange={(e) =>
-                            updateFooterInfo(person, "Phno", e.target.value)
-                          }
-                          className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
-                          placeholder="Phone Number"
+                       <input
+                        type="text"
+                        value={footerInfo.contactus[person].Phno}
+                        onChange={(e) => handlePhoneNumberChange(person, e.target.value)}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                        placeholder="Phone Number"
                         />
                       </div>
                     </div>
