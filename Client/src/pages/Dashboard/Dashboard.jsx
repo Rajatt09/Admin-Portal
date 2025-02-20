@@ -15,36 +15,6 @@ const Dashboard = () => {
     console.log("Searching for:", searchTerm);
   };
 
-  const [date, setDate] = useState(new Date());
-
-  // Data for Line Chart
-  const lineData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May"],
-    datasets: [
-      {
-        label: "Sales",
-        data: [400, 600, 800, 1200, 1500],
-        borderColor: "#4F46E5",
-        backgroundColor: "rgba(79, 70, 229, 0.2)",
-        borderWidth: 2,
-        tension: 0.4,
-      },
-    ],
-  };
-
-  // Data for Bar Chart
-  const barData = {
-    labels: ["A", "B", "C", "D"],
-    datasets: [
-      {
-        label: "Performance",
-        data: [30, 50, 80, 90],
-        backgroundColor: ["#6366F1", "#EC4899", "#22C55E", "#F59E0B"],
-        borderRadius: 6,
-      },
-    ],
-    console.log("Searching for:", searchTerm);
-  };
 
   const [date, setDate] = useState(new Date());
 
@@ -87,13 +57,7 @@ const Dashboard = () => {
             <SearchBar onSearch={handleSearch} />
           </div>
 
-          {/* Line Graph - Full Width */}
-          <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-            <h2 className="text-lg font-medium mb-4">Line Graph</h2>
-            <div className="w-full">
-              <Line data={lineData} options={{ responsive: true, maintainAspectRatio: false }} />
-            </div>
-          </div>
+        
 
           {/* Grid Layout for Calendar & Bar Graph */}
 
@@ -115,9 +79,7 @@ const Dashboard = () => {
                 <Bar data={barData} options={{ responsive: true, maintainAspectRatio: false }} />
               </div>
               <h2 className="text-lg font-medium mb-4">Bar Graph</h2>
-              <div className="w-full">
-                <Bar data={barData} options={{ responsive: true, maintainAspectRatio: false }} />
-              </div>
+           
             </div>
 
             {/* Calendar Component */}
@@ -125,8 +87,7 @@ const Dashboard = () => {
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h2 className="text-lg font-medium mb-4">Calendar</h2>
               <Calendar onChange={setDate} value={date} />
-              <h2 className="text-lg font-medium mb-4">Calendar</h2>
-              <Calendar onChange={setDate} value={date} />
+
             </div>
 
             
