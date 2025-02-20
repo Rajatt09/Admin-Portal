@@ -13,25 +13,33 @@ const FormBuilder = () => {
   const [footerInfo, setFooterInfo] = useState(formConfig.footerInfo);
   const [newInstruction, setNewInstruction] = useState("");
 
-  const validatePhoneNumber = (phoneNumber) => {
-    return /^[0-9]{10}$/.test(phoneNumber); 
-  };
+  const submitForm = async () => {
+    const formConfig = useFormStore.getState().formConfig;
   
-  const handlePhoneNumberChange = (person, value) => {
-    if (/^\d{0,10}$/.test(value)) { // Allow only numbers up to 10 digits
-      updateFooterInfo(person, "Phno", value);
-    }
+    const formattedData = {
+      id: Date.now().toString(), // Unique ID for the form
+      FormInfo: formConfig,
+    };
   
-    if (value.length === 10 && !validatePhoneNumber(value)) {
-      console.error("Invalid phone number");
-    }
+    // Send the form data as a JSON file in the repo
+    await fetch("https://api.github.com/repos/Saarthak1234/Admin-Portal/tree/main/Client/src/pages/OpticaForms/new_form.json", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, // Access the token from the environment variable
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: "Added new form",
+        content: btoa(JSON.stringify(formattedData, null, 2)), // Convert to base64
+        branch: "main",
+      }),
+    });
+  
+    alert("Form submitted!");
   };
   
 
-  const submitForm = () => {
-    console.log("form data is: ", formConfig);
-  };
-
+  // Keeping all your existing functions unchanged
   const updateHeaderInfo = (key, value) => {
     const updatedHeader = { ...headerInfo, [key]: value };
     setHeaderInfo(updatedHeader);
