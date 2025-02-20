@@ -127,7 +127,6 @@ const FormBuilder = () => {
             onClick={submitForm}
             className="flex items-center space-x-2 bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md z-10"
           >
-            {/* <Plus size={20} /> */}
             <span>Create form</span>
           </button>
         </div>
@@ -225,14 +224,12 @@ const FormBuilder = () => {
                           className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                           placeholder="Name"
                         />
-                        <input
-                          type="text"
-                          value={footerInfo.contactus[person].Phno}
-                          onChange={(e) =>
-                            updateFooterInfo(person, "Phno", e.target.value)
-                          }
-                          className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
-                          placeholder="Phone Number"
+                       <input
+                        type="text"
+                        value={footerInfo.contactus[person].Phno}
+                        onChange={(e) => handlePhoneNumberChange(person, e.target.value)}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                        placeholder="Phone Number"
                         />
                       </div>
                     </div>
