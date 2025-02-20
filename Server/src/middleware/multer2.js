@@ -1,10 +1,7 @@
 import fs from "fs";
 import { google } from "googleapis";
-import multer from "multer";
-
-const apikeys = JSON.parse(
-	fs.readFileSync("./middleware/apikeys.json", "utf-8")
-);
+import multer from 'multer';
+import apikeys from './apikeys.json' assert { type: "json" };
 
 const SCOPE = ["https://www.googleapis.com/auth/drive"];
 

@@ -1,10 +1,6 @@
 import fs from "fs";
 import { google } from "googleapis";
-import fs from "fs";
-const apikeys = JSON.parse(
-	fs.readFileSync("./middleware/apikeys.json", "utf-8")
-);
-
+import apikeys from './apikeys.json' assert { type: "json" };
 const SCOPE = ["https://www.googleapis.com/auth/drive"];
 
 // A Function that can provide access to google drive api
