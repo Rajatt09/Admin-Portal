@@ -21,3 +21,4 @@ router.get("/history/all", async (req, res) => {
 });
 
 export default router;
+
