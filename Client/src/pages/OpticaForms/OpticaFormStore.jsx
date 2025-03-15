@@ -1,6 +1,8 @@
+import { Sheet } from "lucide-react";
 import { create } from "zustand";
 
 const defaultFormConfig = {
+  SheetNo: "",
   instructionInfo: {
     heading: "Instructions",
     description: "Read the below instructions carefully:",
@@ -23,6 +25,9 @@ const defaultFormConfig = {
     },
   },
   formInfo: [],
+  deadline: {
+    time: "",
+  },
 };
 
 export const useFormStore = create((set) => ({

@@ -15,7 +15,8 @@ function Events() {
     // Prevent duplicate events by name
     const allEvents = Object.values(events).flat();
     const isDuplicate = allEvents.some(
-      (event) => event.eventName.toLowerCase() === newEvent.eventName.toLowerCase()
+      (event) =>
+        event.eventName.toLowerCase() === newEvent.eventName.toLowerCase()
     );
 
     if (isDuplicate) {
@@ -37,7 +38,9 @@ function Events() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/events/v1/events"); // Replace with your API URL
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_URL}/events/events`
+        ); // Replace with your API URL
         const fetchedEvents = response.data;
         console.log(fetchEvents);
 
@@ -83,7 +86,9 @@ function Events() {
           >
             New Event
           </button>
-          {showmodal && <Showmodal closeModal={closeModal} onSubmit={addEvent} />}
+          {showmodal && (
+            <Showmodal closeModal={closeModal} onSubmit={addEvent} />
+          )}
         </div>
 
         <main className="py-4 mx-6 mt-4">

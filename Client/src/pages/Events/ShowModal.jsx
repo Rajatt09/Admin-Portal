@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 
 function ShowModal({ closeModal, onSubmit }) {
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ function ShowModal({ closeModal, onSubmit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    toast.loading('Uploading files...');
+    toast.loading("Uploading files...");
     // Create FormData object
     const formDataToSend = new FormData();
     formDataToSend.append("eventName", formData.eventName);
@@ -59,30 +59,28 @@ function ShowModal({ closeModal, onSubmit }) {
     try {
       // Use fetch or axios to send data
       const response = await axios.post(
-        "http://localhost:3000/events/v1/eventPost",
+        `${import.meta.env.VITE_SERVER_URL}/events/eventPost`,
         formDataToSend,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         }
-      )
+      );
 
       toast.dismiss();
       console.log("Files uploaded successfully");
-      toast.success('Files uploaded successfully');
+      toast.success("Files uploaded successfully");
       closeModal();
       setTimeout(() => {
         navigate(0);
-      }, 2500)
-
+      }, 2500);
     } catch (error) {
       toast.dismiss();
-      toast.error('Error uploading files');
+      toast.error("Error uploading files");
       console.error("Error uploading files:", error);
     }
   };
-
 
   const removeFile = (index) => {
     setFormData((prev) => ({
@@ -265,8 +263,8 @@ function ShowModal({ closeModal, onSubmit }) {
 
 export default ShowModal;
 
-
-{/* <>
+{
+  /* <>
 			<div
 				className="fixed left-0 right-0 top-0 bottom-0 bg-[rgba(189,189,189,0.9)]"
 				onClick={closeModal}
@@ -343,7 +341,8 @@ export default ShowModal;
 							type="file"
 							name="image"
 						/>
-					</div> */}
+					</div> */
+}
 // 			<div className="flex gap-5 px-5 py-8">
 // 				<button className="submit w-full rounded-lg bg-[#295DFA] text-white p-2 text-center font-bold">
 // 					Add

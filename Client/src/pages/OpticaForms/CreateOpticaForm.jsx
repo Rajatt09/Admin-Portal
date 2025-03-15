@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Plus, Edit3, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { useFormStore } from "./OpticaFormStore";
 import FormFieldEditor from "./FormFieldEditor";
 import Navbar from "../../components/Navbar/Navbar";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
-const FormBuilder = () => {
+let totalSheets = 0;
+
+const FormBuilder = ({ formType }) => {
+  const { id } = useParams();
   const { formConfig, updateFormConfig } = useFormStore();
   const [headerInfo, setHeaderInfo] = useState(formConfig.headerInfo);
   const [instructionInfo, setInstructionInfo] = useState(
@@ -12,38 +17,83 @@ const FormBuilder = () => {
   );
   const [footerInfo, setFooterInfo] = useState(formConfig.footerInfo);
   const [newInstruction, setNewInstruction] = useState("");
+  const [isValid, setIsValid] = useState(false);
+
+  useEffect(() => {
+    const fetchFormData = async () => {
+      try {
+        const response = await axios.get(
+          "https://raw.githubusercontent.com/jiitopticachapter/JIIT-OPTICA-Forms/main/src/data/FormFieldsInfo.json"
+        );
+        const formData = response.data;
+
+        if (formType === "edit") {
+          if (formData && formData?.[id]) {
+            updateFormConfig(formData[id]);
+            setHeaderInfo(formData[id].headerInfo);
+            setInstructionInfo(formData[id].instructionInfo);
+            setFooterInfo(formData[id].footerInfo);
+            setIsValid(true);
+          } else {
+            console.error("Form with this ID not found.");
+          }
+        }
+
+        if (formType === "create") {
+          setHeaderInfo(formConfig.headerInfo);
+          setInstructionInfo(formConfig.instructionInfo);
+          setFooterInfo(formConfig.footerInfo);
+          setIsValid(true);
+        }
+      } catch (error) {
+        console.error("Error fetching form data:", error);
+      }
+    };
+
+    fetchFormData();
+  }, []);
 
   const submitForm = async () => {
     const formConfig = useFormStore.getState().formConfig;
-  
-    const formattedData = {
-      id: Date.now().toString(), // Unique ID for the form
-      FormInfo: formConfig,
-    };
-  
-    // Send the form data as a JSON file in the repo
-    await fetch("https://api.github.com/repos/Saarthak1234/Admin-Portal/tree/main/Client/src/pages/OpticaForms/new_form.json", {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, // Access the token from the environment variable
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: "Added new form",
-        content: btoa(JSON.stringify(formattedData, null, 2)), // Convert to base64
-        branch: "main",
-      }),
-    });
-  
-    alert("Form submitted!");
+    let formattedData = {};
+    if (formType == "create") {
+      let id = Date.now().toString();
+      formattedData = {
+        [id]: { ...formConfig, sheetNo: totalSheets + 1 },
+      };
+    } else {
+      formattedData = {
+        [id]: { ...formConfig },
+      };
+    }
+    console.log("formdata is: ", formattedData);
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/opticaforms/updatejson`,
+        formattedData
+      );
+      if (response.status == 200) console.log("done");
+      else console.log("error");
+      console.log("form updated successfully");
+    } catch (error) {
+      console.error("Error while updating forms:", error);
+    }
+
+    return;
   };
-  
 
   // Keeping all your existing functions unchanged
   const updateHeaderInfo = (key, value) => {
     const updatedHeader = { ...headerInfo, [key]: value };
     setHeaderInfo(updatedHeader);
     updateFormConfig({ ...formConfig, headerInfo: updatedHeader });
+  };
+
+  const updateDeadline = (key, value) => {
+    const obj = { [key]: value };
+    updateFormConfig({ ...formConfig, deadline: obj });
+    console.log("deadline is: ", formConfig.deadline.time);
   };
 
   const updateInstructionInfo = (key, value) => {
@@ -113,6 +163,10 @@ const FormBuilder = () => {
     });
   };
 
+  if (!isValid) {
+    return <div>Not Found</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar className="fixed top-0 left-0 w-16 h-full bg-indigo-900" />
@@ -152,6 +206,21 @@ const FormBuilder = () => {
                   type="text"
                   value={headerInfo.heading}
                   onChange={(e) => updateHeaderInfo("heading", e.target.value)}
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                  placeholder="Enter the title of the form"
+                />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100">
+              <div className="p-6">
+                <h3 className="text-xl font-bold mb-4 text-gray-900">
+                  Form Active till
+                </h3>
+                <input
+                  type="datetime-local"
+                  // value={deadline.time}
+                  onChange={(e) => updateDeadline("time", e.target.value)}
                   className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                   placeholder="Enter the title of the form"
                 />
@@ -224,12 +293,14 @@ const FormBuilder = () => {
                           className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                           placeholder="Name"
                         />
-                       <input
-                        type="text"
-                        value={footerInfo.contactus[person].Phno}
-                        onChange={(e) => handlePhoneNumberChange(person, e.target.value)}
-                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
-                        placeholder="Phone Number"
+                        <input
+                          type="text"
+                          value={footerInfo.contactus[person].Phno}
+                          onChange={(e) =>
+                            updateFooterInfo(person, "Phno", e.target.value)
+                          }
+                          className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                          placeholder="Phone Number"
                         />
                       </div>
                     </div>

@@ -1,5 +1,12 @@
 import React from "react";
-import { Trash2, Plus, X, ChevronDown, AlertCircle } from "lucide-react";
+import {
+  Trash2,
+  Plus,
+  X,
+  ChevronDown,
+  AlertCircle,
+  ClipboardCopy,
+} from "lucide-react";
 
 const defaultField = {
   heading: "New Field",
@@ -214,6 +221,22 @@ const FormFieldEditor = ({
               />
             </div>
           )}
+
+          {(currentField.type === "text" || currentField.type === "email") && (
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Regex
+              </label>
+              <input
+                type="text"
+                name="regex"
+                value={currentField.regex || ""}
+                onChange={handleChange}
+                placeholder="Write regex..."
+                className="w-full sm:flex-grow p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+              />
+            </div>
+          )}
         </div>
 
         {(currentField.type === "radio" ||
@@ -414,6 +437,58 @@ const FormFieldEditor = ({
           </div>
         )}
 
+        <div>
+          <hr /> <br />
+          {(currentField.type === "text" || currentField.type === "email") && (
+            <div style={{ width: "fit-content" }}>
+              <h3 className="text-base font-semibold text-gray-800">
+                Common Regex Patterns
+              </h3>
+              <div className="space-y-2">
+                {/* Email Regex */}
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-sm text-gray-700 flex-1 break-words">
+                    <span className="font-semibold">Email:</span>{" "}
+                    <code className="bg-gray-100 px-1 py-0.5 rounded">
+                      ^[^\s@]+@[^\s@]+\.[^\s@]+$
+                    </code>
+                  </span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+                      );
+                    }}
+                    className="p-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
+                    title="Copy Email Regex"
+                  >
+                    <ClipboardCopy size={18} className="text-gray-600" />
+                  </button>
+                </div>
+
+                {/* Phone Regex */}
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-sm text-gray-700 flex-1 break-words">
+                    <span className="font-semibold">Phone:</span>{" "}
+                    <code className="bg-gray-100 px-1 py-0.5 rounded">
+                      ^[0-9]{10}$
+                    </code>
+                  </span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText("^[0-9]{10}$");
+                    }}
+                    className="p-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
+                    title="Copy Phone Regex"
+                  >
+                    <ClipboardCopy size={18} className="text-gray-600" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="flex flex-wrap gap-6 pt-4 border-t border-gray-100">
           {currentField.type === "radio" && (
             <label className="relative flex items-center gap-2 cursor-pointer group">
@@ -444,7 +519,7 @@ const FormFieldEditor = ({
             <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
               Required field
             </span>
-          </label>
+          </label>{" "}
         </div>
       </div>
     </div>
