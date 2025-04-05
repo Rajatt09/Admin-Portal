@@ -2,7 +2,7 @@ import { Sheet } from "lucide-react";
 import { create } from "zustand";
 
 const defaultFormConfig = {
-  SheetNo: "",
+  sheetNo: "",
   instructionInfo: {
     heading: "Instructions",
     description: "Read the below instructions carefully:",

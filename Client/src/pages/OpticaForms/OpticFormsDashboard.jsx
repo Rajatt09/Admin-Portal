@@ -7,6 +7,8 @@ import axios from "axios";
 
 function OpticaFormsDashboard() {
   const [totalSheets, setTotalSheets] = useState([]);
+  const [formData, setFormData] = useState({});
+
   useEffect(() => {
     const fetchSheets = async () => {
       try {
@@ -14,9 +16,15 @@ function OpticaFormsDashboard() {
           `${import.meta.env.VITE_SERVER_URL}/opticaforms/getforms`
         );
 
-        // totalSheets = data;
+        const response2 = await axios.get(
+          "https://raw.githubusercontent.com/jiitopticachapter/JIIT-OPTICA-Forms/main/src/data/FormFieldsInfo.json"
+        );
+        setFormData(response2.data);
+
         if (response.status === 200) {
           setTotalSheets(response.data.data);
+          console.log("ff : ", response.data.data);
+          console.log("formdata : ", formData);
         }
       } catch (error) {
         console.error("Error fetching total sheets: ", error);
@@ -25,6 +33,19 @@ function OpticaFormsDashboard() {
 
     fetchSheets();
   }, []);
+
+  const onDelete = async (id, name) => {
+    console.log("deleting form.... ", id, name);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/opticaforms/deleteform`,
+        { id, name }
+      );
+      console.log(`Form "${name}" deleted successfully.`);
+    } catch (error) {
+      console.log("error while deleting form: ", error);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-white">
@@ -66,23 +87,27 @@ function OpticaFormsDashboard() {
         <main className="py-4 mx-6 mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
             {/* Cards container for forms */}
-            {totalSheets.map((sheet, index) => (
-              <Card
-                key={index} // Use index as key (ideally a unique ID should be used if available)
-                formName={sheet.eventName}
-                date={sheet.eventDate}
-                day={
-                  sheet.eventDate
-                    ? new Date(sheet.eventDate).toLocaleDateString("en-US", {
-                        weekday: "long",
-                      })
-                    : "N/A"
-                }
-                responseCount={sheet.totalEntries}
-                sheetLink={sheet.sheetLink}
-                formId={sheet.eventId}
-              />
-            ))}
+            {totalSheets.map((sheet, index) =>
+              formData[sheet.eventId] ? (
+                <Card
+                  key={index} // Prefer a unique ID if available
+                  formName={sheet.eventName}
+                  date={sheet.eventDate}
+                  day={
+                    sheet.eventDate
+                      ? new Date(sheet.eventDate).toLocaleDateString("en-US", {
+                          weekday: "long",
+                        })
+                      : "N/A"
+                  }
+                  responseCount={sheet.totalEntries}
+                  sheetLink={sheet.sheetLink}
+                  formId={sheet.eventId}
+                  onDelete={onDelete}
+                  sheetName={sheet.sheetName}
+                />
+              ) : null
+            )}
 
             <Card
               formName="Event Registration Form"

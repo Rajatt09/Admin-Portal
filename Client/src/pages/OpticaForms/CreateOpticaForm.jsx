@@ -6,7 +6,18 @@ import Navbar from "../../components/Navbar/Navbar";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
-let totalSheets = 0;
+let nextSheet = 0;
+
+// function setNextSheet(value) {
+//   nextSheet = value;
+// }
+
+const generateRandomId = (length = 16) => {
+  return Array.from(
+    { length },
+    () => Math.random().toString(36).charAt(2) // random character from a-z, 0-9
+  ).join("");
+};
 
 const FormBuilder = ({ formType }) => {
   const { id } = useParams();
@@ -26,6 +37,16 @@ const FormBuilder = ({ formType }) => {
           "https://raw.githubusercontent.com/jiitopticachapter/JIIT-OPTICA-Forms/main/src/data/FormFieldsInfo.json"
         );
         const formData = response.data;
+        // totalSheets = Object.keys(formData).length;
+
+        const response2 = await axios.get(
+          `${import.meta.env.VITE_SERVER_URL}/opticaforms/getforms`
+        );
+
+        // totalSheets = data;
+        if (response.status === 200) {
+          nextSheet = response2.data.data.length;
+        }
 
         if (formType === "edit") {
           if (formData && formData?.[id]) {
@@ -57,9 +78,10 @@ const FormBuilder = ({ formType }) => {
     const formConfig = useFormStore.getState().formConfig;
     let formattedData = {};
     if (formType == "create") {
-      let id = Date.now().toString();
+      // let id = Date.now().toString();
+      let id = generateRandomId();
       formattedData = {
-        [id]: { ...formConfig, sheetNo: totalSheets + 1 },
+        [id]: { ...formConfig, sheetNo: nextSheet + 1 },
       };
     } else {
       formattedData = {
