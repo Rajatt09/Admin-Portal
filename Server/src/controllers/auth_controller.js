@@ -8,6 +8,7 @@ dotenv.config()
 const app = express()
 
 export const Login =app.post('/login', async (req, res) => {
+    console.log(" called :")
     
     const emailenv = process.env.EMAIL
     const passwordenv = process.env.PASSWORD
